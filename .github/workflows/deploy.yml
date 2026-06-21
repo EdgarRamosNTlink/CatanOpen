@@ -72,8 +72,8 @@ jobs:
 
       - name: Deploy server to Railway
         env:
-          RAILWAY_TOKEN: 99995001-c6bb-4a59-94f8-f00d3be5a5af
-          RAILWAY_API_TOKEN: 99995001-c6bb-4a59-94f8-f00d3be5a5af
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
         run: |
           railway up \
             --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
