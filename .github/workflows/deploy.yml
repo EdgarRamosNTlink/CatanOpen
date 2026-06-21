@@ -65,7 +65,7 @@ jobs:
       # 8) Despliega el servidor a Railway usando la CLI oficial.
       #    En CI no hay `railway link` previo, así que pasamos explícitamente
       #    --project, --service y --environment para que sepa dónde desplegar.
-      #    --yes evita prompts interactivos. --detach devuelve el control sin
+      #    --yes evita prompts interactivos. --detach devuelve el control  sin
       #    esperar a que el deploy quede healthy (el estado se ve en Railway).
       - name: Install Railway CLI
         run: npm install -g @railway/cli
