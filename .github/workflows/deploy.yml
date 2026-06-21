@@ -72,9 +72,9 @@ jobs:
 
       - name: Deploy server to Railway
         env:
-          # RAILWAY_TOKEN: Personal Access Token con permisos de deploy.
-          # Generarlo en Railway > Settings > Tokens (NO commitear nunca).
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # La CLI de Railway espera `RAILWAY_TOKEN`, aunque el secreto en GitHub
+          # pueda llamarse `RAILWAY_DEPLOY_TOKEN`.
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
         run: |
           railway up \
             --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
