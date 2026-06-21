@@ -1,0 +1,64 @@
+name: Deploy (Test -> S3, Server -> Railway)
+
+# Se ejecuta en cada push a la rama test y también manualmente desde Actions.
+on:
+  push:
+    branches:
+      - test
+  workflow_dispatch:
+
+# Evita despliegues solapados en la rama de pruebas.
+concurrency:
+  group: deploy-test
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create client/.env from Secret
+        run: |
+          echo "VITE_SERVER_URL=${{ secrets.VITE_SERVER_URL }}" > client/.env
+
+      - name: Build all workspaces
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Sync client/dist to S3
+        run: |
+          aws s3 sync client/dist s3://${{ secrets.AWS_S3_BUCKET }} \
+            --delete \
+            --exclude "*.map" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy server to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+        run: |
+          railway up \
+            --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
+            --service  "${{ secrets.RAILWAY_SERVICE_NAME }}" \
+            --environment production \
+            --detach --yes
