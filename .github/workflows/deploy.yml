@@ -62,16 +62,7 @@ jobs:
             --cache-control "public, max-age=31536000, immutable" \
             --metadata-directive REPLACE
 
-      # 8) Invalida cache de CloudFront si existe distribución delante del bucket.
-      #    Si no usas CloudFront, deja la variable vacía y el paso se omite.
-      - name: Invalidate CloudFront cache
-        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
-
-      # 9) Despliega el servidor a Railway usando la CLI oficial.
+      # 8) Despliega el servidor a Railway usando la CLI oficial.
       #    En CI no hay `railway link` previo, así que pasamos explícitamente
       #    --project, --service y --environment para que sepa dónde desplegar.
       #    --yes evita prompts interactivos. --detach devuelve el control sin
