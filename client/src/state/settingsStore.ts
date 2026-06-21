@@ -30,7 +30,7 @@ const DEFAULTS: BoardSettings = {
   offsetX: -45,
   offsetY: -31,
   tileOffsetX: 0,
-  tileOffsetY: 0,
+  tileOffsetY: -30,
   oceanScale: 0.55,
 };
 
@@ -43,7 +43,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: 'catan-board-settings',
-      version: 3,
+      version: 4,
       // Al cambiar de versión, descartar valores viejos y usar los nuevos defaults.
       migrate: () => DEFAULTS,
     },

@@ -13,6 +13,22 @@ async function bootstrap() {
   const gameServer = new Server();
   gameServer.define('game', GameRoom);
 
+  // Endpoint mínimo de salud para Railway/CDN.
+  // Colyseus no define handler HTTP para GET /, por lo que el proxy inverso
+  // de Railway no recibe respuesta y considera el servicio no-ready.
+  // El transport por defecto (WebSocketTransport de @colyseus/ws-transport)
+  // expone `server`, que es un http.Server de Node.js. Agregamos un listener
+  // 'request' que responda 200 OK a /health ANTES de que Colyseus registre
+  // sus propias rutas. Los eventos 'request' se emiten para toda petición
+  // HTTP que no sea upgrade de WebSocket.
+  const httpServer = (gameServer as any).transport.server as import('http').Server;
+  httpServer.on('request', (req, res) => {
+    if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('OK');
+    }
+  });
+
   await gameServer.listen(port);
 
   // eslint-disable-next-line no-console

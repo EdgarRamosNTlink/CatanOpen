@@ -11,7 +11,7 @@ export default function VictoryModal() {
   if (!winner) return null;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70">
+    <div className="fixed inset-0 z-50 grid place-items-start bg-black/70 p-6 pl-8">
       <div className="bg-slate-800 rounded-2xl border border-amber-500/40 p-8 w-96 text-center shadow-2xl">
         <div className="text-5xl mb-2">🏆</div>
         <h2 className="font-display text-2xl text-amber-300 mb-1">¡Victoria!</h2>

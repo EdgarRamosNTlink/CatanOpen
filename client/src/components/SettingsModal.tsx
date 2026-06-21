@@ -106,7 +106,7 @@ export default function SettingsModal({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60">
+    <div className="fixed inset-0 z-50 grid place-items-start bg-black/60 p-6 pl-8">
       <div className="bg-slate-800 rounded-2xl border border-sky-500/40 p-6 w-96 shadow-2xl max-h-[90vh] overflow-y-auto">
         <h2 className="font-display text-xl text-sky-300 mb-1">Ajustes visuales</h2>
         <p className="text-xs text-slate-400 mb-4">

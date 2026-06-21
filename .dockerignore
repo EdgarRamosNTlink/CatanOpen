@@ -1,0 +1,15 @@
+# No subir al contexto de build de Docker:
+node_modules
+client
+dist
+build
+.cache
+*.log
+*.tsbuildinfo
+.DS_Store
+.env
+.env.local
+.git
+.github
+README.md
+AGENTS.md

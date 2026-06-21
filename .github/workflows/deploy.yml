@@ -72,15 +72,21 @@ jobs:
             --paths "/*"
 
       # 9) Despliega el servidor a Railway usando la CLI oficial.
-      #    RAILWAY_TOKEN es un token de deploy (no de usuario) generado en
-      #    Railway > Settings > Tokens.
+      #    En CI no hay `railway link` previo, así que pasamos explícitamente
+      #    --project, --service y --environment para que sepa dónde desplegar.
+      #    --yes evita prompts interactivos. --detach devuelve el control sin
+      #    esperar a que el deploy quede healthy (el estado se ve en Railway).
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
       - name: Deploy server to Railway
         env:
+          # RAILWAY_TOKEN: Personal Access Token con permisos de deploy.
+          # Generarlo en Railway > Settings > Tokens (NO commitear nunca).
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          # railway up detecta el servicio si hay un único service en el proyecto;
-          # si hay varios, indica el nombre con --service <nombre>.
-          railway up --service "${{ secrets.RAILWAY_SERVICE_NAME }}" --detach
+          railway up \
+            --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
+            --service  "${{ secrets.RAILWAY_SERVICE_NAME }}" \
+            --environment production \
+            --detach --yes

@@ -23,7 +23,7 @@ export default function TradeModal({ onClose }: Props) {
   const canTrade = have >= 4 && give !== get;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60">
+    <div className="fixed inset-0 z-50 grid place-items-start bg-black/60 p-6 pl-8">
       <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 w-80 shadow-2xl">
         <h2 className="font-display text-xl text-amber-300 mb-4">Comercio con el banco (4:1)</h2>
         <label className="block text-xs text-slate-400 mb-1">Dar (4)</label>
