@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+/* El lienzo de Phaser ocupa el fondo; el HUD React se superpone con punteros
+   selectivamente para no bloquear los clics del tablero. */
+#phaser-root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#hud-root {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Los elementos interactivos del HUD rehabilitan el puntero. */
+#hud-root button,
+#hud-root a,
+#hud-root input,
+#hud-root select,
+#hud-root .hud-panel {
+  pointer-events: auto;
+}
+
+/* Pequeña animación para las fichas de recursos que cambian. */
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.pop-anim {
+  animation: pop 0.35s ease-out;
+}

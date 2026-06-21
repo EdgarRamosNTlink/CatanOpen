@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2020"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "types": ["node"],
+    "sourceMap": true,
+    "composite": true,
+    "verbatimModuleSyntax": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../shared" }]
+}

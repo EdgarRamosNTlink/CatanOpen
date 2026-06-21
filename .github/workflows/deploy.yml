@@ -1,0 +1,86 @@
+name: Deploy (Client -> S3, Server -> Railway)
+
+# Se ejecuta en cada push (incluido merge) a la rama master.
+# También se puede lanzar a mano desde la pestaña Actions.
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Evita despliegues solapados si llegan varios merges seguidos.
+concurrency:
+  group: deploy-master
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1) Clona el repo en el runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2) Node 20 (necesario para Vite 5 y Colyseus 0.16)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3) Instala dependencias de los 3 workspaces (shared, server, client)
+      - name: Install dependencies
+        run: npm install
+
+      # 4) Inyecta la URL del servidor Colyseus (Railway) en el cliente.
+      #    Vite lee .env en build time; VITE_SERVER_URL queda embebido en el bundle.
+      - name: Create client/.env from Secret
+        run: |
+          echo "VITE_SERVER_URL=${{ secrets.VITE_SERVER_URL }}" > client/.env
+
+      # 5) Typecheck + build de shared, server y client (orden respetado en package.json)
+      - name: Build all workspaces
+        run: npm run build
+
+      # 6) Configura credenciales AWS desde GitHub Secrets (NUNCA hardcodeadas)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 7) Sincroniza el build del cliente al bucket S3.
+      #    --delete quita los archivos que ya no existen en el build.
+      #    El bucket debe estar configurado para static website hosting
+      #    (o delante de una distribución de CloudFront).
+      - name: Sync client/dist to S3
+        run: |
+          aws s3 sync client/dist s3://${{ secrets.AWS_S3_BUCKET }} \
+            --delete \
+            --exclude "*.map" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --metadata-directive REPLACE
+
+      # 8) Invalida cache de CloudFront si existe distribución delante del bucket.
+      #    Si no usas CloudFront, deja la variable vacía y el paso se omite.
+      - name: Invalidate CloudFront cache
+        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      # 9) Despliega el servidor a Railway usando la CLI oficial.
+      #    RAILWAY_TOKEN es un token de deploy (no de usuario) generado en
+      #    Railway > Settings > Tokens.
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy server to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          # railway up detecta el servicio si hay un único service en el proyecto;
+          # si hay varios, indica el nombre con --service <nombre>.
+          railway up --service "${{ secrets.RAILWAY_SERVICE_NAME }}" --detach
