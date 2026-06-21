@@ -72,9 +72,7 @@ jobs:
 
       - name: Deploy server to Railway
         env:
-          # La CLI de Railway espera `RAILWAY_TOKEN`, aunque el secreto en GitHub
-          # pueda llamarse `RAILWAY_DEPLOY_TOKEN`.
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
+          RAILWAY_TOKEN: 260e5226-c6c4-4506-8f35-8c83ed84d6ed
         run: |
           railway up \
             --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
