@@ -72,7 +72,7 @@ jobs:
 
       - name: Deploy server to Railway
         env:
-          RAILWAY_TOKEN: 260e5226-c6c4-4506-8f35-8c83ed84d6ed
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_DEPLOY_TOKEN }}
         run: |
           railway up \
             --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
